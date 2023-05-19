@@ -15,7 +15,6 @@ import {
 	WritableStreamDefaultController,
 	WritableStreamDefaultWriter,
 } from 'node:stream/web' // Remove when Node 16 is dropped for Node 18.
-import { fetch, File, FormData, Headers, Request, Response } from 'undici' // Remove when Node 16 is dropped for Node 18.
 import { URLPattern } from 'urlpattern-polyfill'
 import {
 	cancelAnimationFrame,
@@ -86,9 +85,6 @@ export {
 	Element,
 	Event,
 	EventTarget,
-	File,
-	FormData,
-	Headers,
 	HTMLBodyElement,
 	HTMLCanvasElement,
 	HTMLDivElement,
@@ -116,9 +112,7 @@ export {
 	ReadableStreamBYOBRequest,
 	ReadableStreamDefaultController,
 	ReadableStreamDefaultReader,
-	Request,
 	ResizeObserver,
-	Response,
 	ShadowRoot,
 	Storage,
 	StyleSheet,
@@ -135,7 +129,6 @@ export {
 	cancelIdleCallback,
 	clearTimeout,
 	crypto,
-	fetch,
 	requestAnimationFrame,
 	requestIdleCallback,
 	setTimeout,

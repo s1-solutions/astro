@@ -17,7 +17,6 @@ describe('Basic', () => {
 			'Element',
 			'Event',
 			'EventTarget',
-			'File',
 			'FormData',
 			'HTMLDocument',
 			'HTMLElement',

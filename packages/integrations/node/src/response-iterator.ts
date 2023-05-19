@@ -6,7 +6,6 @@
 
 import type { ReadableStreamDefaultReadResult } from 'node:stream/web';
 import { Readable as NodeReadableStream } from 'stream';
-import type { Response as NodeResponse } from 'undici';
 
 interface NodeStreamIterator<T> {
 	next(): Promise<IteratorResult<T, boolean | undefined>>;
@@ -36,8 +35,8 @@ function isBuffer(value: any): value is Buffer {
 	);
 }
 
-function isNodeResponse(value: any): value is NodeResponse {
-	return !!(value as NodeResponse).body;
+function isResponse(value: any): value is Response {
+	return !!(value as Response).body;
 }
 
 function isReadableStream(value: any): value is ReadableStream<any> {
@@ -203,11 +202,11 @@ function asyncIterator<T>(source: AsyncIterableIterator<T>): AsyncIterableIterat
 }
 
 export function responseIterator<T>(
-	response: Response | NodeResponse | Buffer
+	response: Response | Buffer
 ): AsyncIterableIterator<T> {
 	let body: unknown = response;
 
-	if (isNodeResponse(response)) body = response.body;
+	if (isResponse(response)) body = response.body;
 
 	if (isBuffer(body)) body = NodeReadableStream.from(body);
 
