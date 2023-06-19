@@ -1,5 +1,5 @@
 {
-  "name": "@astrojs/webapi",
+  "name": "astrojs-webapi-no-undici",
   "description": "Use Web APIs in Node",
   "version": "2.2.0",
   "type": "module",
