@@ -24,8 +24,12 @@ export function invalidateCompilation(config: AstroConfig, filename: string) {
 	}
 }
 
+const webCache = await caches?.open?.('astro-compiler-cache');
+
 export async function cachedCompilation(props: CompileProps): Promise<CompileResult> {
-	const { astroConfig, filename } = props;
+	const { astroConfig, filename, source } = props;
+
+
 	let cache: CompilationCache;
 	if (!configCache.has(astroConfig)) {
 		cache = new Map();
@@ -33,10 +37,26 @@ export async function cachedCompilation(props: CompileProps): Promise<CompileRes
 	} else {
 		cache = configCache.get(astroConfig)!;
 	}
+	
+	// try in-memory cache
 	if (cache.has(filename)) {
 		return cache.get(filename)!;
 	}
+
+	const start = performance.now();
+	// try persistent cache
+	const key = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(JSON.stringify(astroConfig) + source))
+	const match = await webCache?.match?.(key);
+	if (match) {
+		const compileResult = await match.json();
+		cache.set(filename, compileResult);
+		console.log(`[incremental-astro] cache hit for ${filename} in ${performance.now() - start}ms`);
+		return compileResult;
+	}
+
 	const compileResult = await compile(props);
+	console.log(`[incremental-astro] cache miss for ${filename} in ${performance.now() - start}ms`);
 	cache.set(filename, compileResult);
+	webCache?.put?.(key, new Response(JSON.stringify(compileResult))).catch(() => {});
 	return compileResult;
 }
