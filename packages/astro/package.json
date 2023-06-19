@@ -1,5 +1,5 @@
 {
-  "name": "astro",
+  "name": "incremental-astro",
   "version": "2.7.0",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
