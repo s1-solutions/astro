@@ -25,6 +25,7 @@ type CreateAPIContext = {
 	site?: string;
 	props: Record<string, any>;
 	adapterName?: string;
+	reroute: (path : string, options ?: {}) => Promise<Response>;
 };
 
 /**
@@ -38,6 +39,7 @@ export function createAPIContext({
 	site,
 	props,
 	adapterName,
+	reroute
 }: CreateAPIContext): APIContext {
 	initResponseWithEncoding();
 	const context = {
@@ -47,6 +49,8 @@ export function createAPIContext({
 		site: site ? new URL(site) : undefined,
 		generator: `Astro v${ASTRO_VERSION}`,
 		props,
+		locals: {},
+		reroute,
 		redirect(path, status) {
 			return new Response(null, {
 				status: status || 302,
@@ -69,9 +73,9 @@ export function createAPIContext({
 				}
 			}
 
-			return Reflect.get(request, clientAddressSymbol);
+			return Reflect.get(request, clientAddressSymbol) as string;
 		},
-	} as APIContext;
+	} satisfies APIContext;
 
 	// We define a custom property, so we can check the value passed to locals
 	Object.defineProperty(context, 'locals', {
@@ -143,6 +147,7 @@ export async function callEndpoint<MiddlewareResult = Response | EndpointOutput>
 		props: ctx.props,
 		site: env.site,
 		adapterName: env.adapterName,
+		reroute: path => env.reroute(path, ctx),
 	});
 
 	let response;

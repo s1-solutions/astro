@@ -8,6 +8,13 @@ const loginInfo = {
 	currentTime: undefined,
 };
 
+const rerouter = defineMiddleware(async ({ request, reroute }, next) => {
+	if (request.url.endsWith('/admin')) {
+		return reroute('/login')
+	}
+	return next()
+})
+
 export const minifier = defineMiddleware(async (context, next) => {
 	const response = await next();
 	// check if the response is returning some HTML
@@ -66,4 +73,4 @@ const validation = defineMiddleware(async (context, next) => {
 	return next();
 });
 
-export const onRequest = sequence(validation, minifier);
+export const onRequest = rerouter

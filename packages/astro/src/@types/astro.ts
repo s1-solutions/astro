@@ -1852,6 +1852,23 @@ interface AstroSharedContext<
 	 * List of props returned for this path by `getStaticPaths` (**Static Only**).
 	 */
 	props: Props;
+		
+	/**
+	 * Matches the current request to another page, and renders a response using it.
+	 * 
+	 * The response will be 404 if no matching page is found.
+	 * If 404.astro is authored by the user, it will be used.
+	 * If not, astro's default 404 page will be used.
+	 * 
+	 * The response will be 500 if generating the page throws an error.
+	 * If 500.astro is authored by the user, it will be used.
+	 * If not, astro's default 500 page will be used.
+	 * 
+	 * @param path 
+	 * @returns The resulting response from rendering the page routed at `path`.
+	 */
+	reroute: (path: string, options ?: {}) => Promise<Response>;
+
 	/**
 	 * Redirect to another page (**SSR Only**).
 	 */

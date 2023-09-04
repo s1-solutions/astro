@@ -109,6 +109,7 @@ export class Pipeline {
 			props: renderContext.props,
 			site: env.site,
 			adapterName: env.adapterName,
+			reroute: (path, _options) => env.reroute(path, renderContext),
 		});
 
 		switch (renderContext.route.type) {

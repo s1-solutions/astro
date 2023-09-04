@@ -47,6 +47,7 @@ export class BuildPipeline extends Pipeline {
 					return createAssetLink(hashedFilePath, manifest.base, manifest.assetsPrefix);
 				},
 				routeCache: staticBuildOptions.routeCache,
+				reroute: async _ => new Response(".reroute() has not been implemented for static builds."),
 				site: manifest.site,
 				ssr,
 				streaming: true,

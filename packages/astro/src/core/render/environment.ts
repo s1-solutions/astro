@@ -1,4 +1,5 @@
-import type { RuntimeMode, SSRLoadedRenderer } from '../../@types/astro.js';
+import type { RuntimeMode, SSRLoadedRenderer } from '../../@types/astro';
+import type { RenderContext } from './context.js';
 import type { Logger } from '../logger/core.js';
 import type { RouteCache } from './route-cache.js';
 
@@ -20,6 +21,7 @@ export interface Environment {
 	renderers: SSRLoadedRenderer[];
 	clientDirectives: Map<string, string>;
 	resolve: (s: string) => Promise<string>;
+	reroute: (path: string, renderContext: RenderContext) => Promise<Response>;
 	routeCache: RouteCache;
 	/**
 	 * Used for `Astro.site`

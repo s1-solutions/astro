@@ -83,6 +83,7 @@ export class App {
 	 * @private
 	 */
 	#createEnvironment(streaming = false) {
+		const appThis = this;
 		return createEnvironment({
 			adapterName: this.#manifest.adapterName,
 			logger: this.#logger,
@@ -104,6 +105,18 @@ export class App {
 						return createAssetLink(bundlePath, this.#manifest.base, this.#manifest.assetsPrefix);
 					}
 				}
+			},
+			async reroute(path, renderContext: RenderContext) {
+				const matchedRoute = matchRoute(path, appThis.#manifestData);
+				console.log("core/app/index.ts", matchedRoute)
+				if (matchedRoute === undefined) {
+					return appThis.#renderError(renderContext.request, { status: 404 });
+				}
+				const mod = await appThis.#getModuleForRoute(matchedRoute);
+				const pageModule = (await mod.page()) as any;
+				// @ts-ignore renderRoute will use the middleware function again, if it finds one set
+				appThis.#pipeline.setMiddlewareFunction(undefined);
+				return await appThis.#pipeline.renderRoute(renderContext, pageModule);
 			},
 			routeCache: new RouteCache(this.#logger),
 			site: this.#manifest.site,

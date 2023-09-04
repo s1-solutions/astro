@@ -1,4 +1,4 @@
-import type { MiddlewareResponseHandler, Params } from '../../@types/astro.js';
+import type { APIContext, MiddlewareResponseHandler, Params } from '../../@types/astro';
 import { createAPIContext } from '../endpoint/index.js';
 import { sequence } from './sequence.js';
 
@@ -18,17 +18,23 @@ export type CreateContext = {
 	 * Optional parameters
 	 */
 	params?: Params;
+
+	reroute?: APIContext['reroute']
 };
+
+const defaultReroute: APIContext['reroute'] = path => { throw new Error(`.reroute() has not been implemented for edge middleware.`) }
 
 /**
  * Creates a context to be passed to Astro middleware `onRequest` function.
+ * Usable by adapters that need a lower-level API for creating middleware.
  */
-function createContext({ request, params }: CreateContext) {
+function createContext({ request, params, reroute }: CreateContext) {
 	return createAPIContext({
 		request,
 		params: params ?? {},
 		props: {},
 		site: undefined,
+		reroute: reroute ?? defaultReroute
 	});
 }
 
