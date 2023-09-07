@@ -58,7 +58,7 @@ describe('Content Collections - render()', () => {
 		});
 
 		it('Includes component scripts for rendered entry', async () => {
-			const html = await fixture.readFile('/launch-week-component-scripts/index.html');
+			const html = await fixture.readFile('/launch-week-component/index.html');
 			const $ = cheerio.load(html);
 
 			const allScripts = $('head > script[type="module"]');
@@ -73,6 +73,28 @@ describe('Content Collections - render()', () => {
 			// Includes inline script
 			expect($('script[data-is-inline]')).to.have.a.lengthOf(1);
 		});
+		
+		it('Includes component scripts for indirectly rendered entry', async () => {
+			const html = await fixture.readFile('/launch-week-component-rendered-indirectly/index.html');
+			const $ = cheerio.load(html);
+
+			const hoistedScripts = $('head > script[type="module"]');
+			expect(hoistedScripts).to.have.length;
+
+			// Includes hoisted script
+			let foundExpectedScript = false
+			for (const script of hoistedScripts) {
+				const { src } = script.attribs
+				if (!src) continue
+				const js = await fixture.readFile(src)
+				if (js.includes("document.querySelector('#update-me')")) {
+					foundExpectedScript = true
+					break
+				}
+			}
+
+			expect(foundExpectedScript, 'Hoisted script from WithScripts.astro was not included').to.be.true
+		})
 
 		it('Excludes component scripts for non-rendered entries', async () => {
 			const html = await fixture.readFile('/index.html');
@@ -222,7 +244,7 @@ describe('Content Collections - render()', () => {
 		});
 
 		it('Includes component scripts for rendered entry', async () => {
-			const response = await fixture.fetch('/launch-week-component-scripts', { method: 'GET' });
+			const response = await fixture.fetch('/launch-week-component', { method: 'GET' });
 			expect(response.status).to.equal(200);
 
 			const html = await response.text();
