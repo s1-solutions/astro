@@ -34,6 +34,9 @@ export class BuildPipeline extends Pipeline {
 				renderers: manifest.renderers,
 				clientDirectives: manifest.clientDirectives,
 				compressHTML: manifest.compressHTML,
+				upgradeWebSocket(request: Request) {
+					throw new Error('You cannot use WebSockets in a static build or on a prerendered page.');
+				},
 				async resolve(specifier: string) {
 					const hashedFilePath = manifest.entryModules[specifier];
 					if (typeof hashedFilePath !== 'string' || hashedFilePath === '') {

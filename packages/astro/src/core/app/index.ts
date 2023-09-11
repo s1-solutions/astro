@@ -57,6 +57,7 @@ export class App {
 	#baseWithoutTrailingSlash: string;
 	#pipeline: SSRRoutePipeline;
 	#adapterLogger: AstroIntegrationLogger;
+	#upgradeWebSocket: (request: Request) => { socket: WebSocket, response: Response };
 
 	constructor(manifest: SSRManifest, streaming = true) {
 		this.#manifest = manifest;
@@ -70,10 +71,15 @@ export class App {
 			this.#logger.options,
 			this.#manifest.adapterName
 		);
+		this.#upgradeWebSocket = () => { throw new Error("The current adapter does not implement the 'upgradeWebSocket' Astro feature.") }
 	}
 
 	getAdapterLogger(): AstroIntegrationLogger {
 		return this.#adapterLogger;
+	}
+
+	setUpgradeWebSocket(upgradeWebSocket: (request: Request) => { socket: WebSocket, response: Response }) {
+		this.#upgradeWebSocket = upgradeWebSocket;
 	}
 
 	/**
@@ -83,6 +89,7 @@ export class App {
 	 * @private
 	 */
 	#createEnvironment(streaming = false) {
+		const appThis = this;
 		return createEnvironment({
 			adapterName: this.#manifest.adapterName,
 			logger: this.#logger,
@@ -90,6 +97,9 @@ export class App {
 			compressHTML: this.#manifest.compressHTML,
 			renderers: this.#manifest.renderers,
 			clientDirectives: this.#manifest.clientDirectives,
+			upgradeWebSocket(request) {
+				return appThis.#upgradeWebSocket(request);
+			},
 			resolve: async (specifier: string) => {
 				if (!(specifier in this.#manifest.entryModules)) {
 					throw new Error(`Unable to resolve [${specifier}]`);

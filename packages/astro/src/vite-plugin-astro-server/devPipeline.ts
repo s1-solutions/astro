@@ -80,6 +80,9 @@ export default class DevPipeline extends Pipeline {
 			renderers: [],
 			clientDirectives: manifest.clientDirectives,
 			compressHTML: manifest.compressHTML,
+			upgradeWebSocket(request) {
+				throw new Error(`upgradeWebSocket is not implemented for dev mode`);
+			},
 			resolve: createResolve(loader, settings.config.root),
 			routeCache: new RouteCache(logger, mode),
 			site: manifest.site,

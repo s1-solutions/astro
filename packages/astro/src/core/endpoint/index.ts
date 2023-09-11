@@ -24,6 +24,7 @@ type CreateAPIContext = {
 	params: Params;
 	site?: string;
 	props: Record<string, any>;
+	upgradeWebSocket: (request: Request) => { socket: WebSocket; response: Response };
 	adapterName?: string;
 };
 
@@ -37,6 +38,7 @@ export function createAPIContext({
 	params,
 	site,
 	props,
+	upgradeWebSocket,
 	adapterName,
 }: CreateAPIContext): APIContext {
 	initResponseWithEncoding();
@@ -57,6 +59,8 @@ export function createAPIContext({
 		},
 		ResponseWithEncoding,
 		url: new URL(request.url),
+		locals: {},
+		upgradeWebSocket,
 		get clientAddress() {
 			if (!(clientAddressSymbol in request)) {
 				if (adapterName) {
@@ -69,9 +73,9 @@ export function createAPIContext({
 				}
 			}
 
-			return Reflect.get(request, clientAddressSymbol);
+			return Reflect.get(request, clientAddressSymbol) as string;
 		},
-	} as APIContext;
+	} satisfies APIContext;
 
 	// We define a custom property, so we can check the value passed to locals
 	Object.defineProperty(context, 'locals', {
@@ -137,11 +141,13 @@ export async function callEndpoint<MiddlewareResult = Response | EndpointOutput>
 	ctx: RenderContext,
 	onRequest?: MiddlewareHandler<MiddlewareResult> | undefined
 ): Promise<Response> {
+	// here
 	const context = createAPIContext({
 		request: ctx.request,
 		params: ctx.params,
 		props: ctx.props,
 		site: env.site,
+		upgradeWebSocket: env.upgradeWebSocket,
 		adapterName: env.adapterName,
 	});
 

@@ -14,6 +14,7 @@ export type CreateContext = {
 	 * The incoming request
 	 */
 	request: Request;
+	upgradedWebSocket?: (request: Request) => { socket: WebSocket; response: Response }
 	/**
 	 * Optional parameters
 	 */
@@ -23,11 +24,12 @@ export type CreateContext = {
 /**
  * Creates a context to be passed to Astro middleware `onRequest` function.
  */
-function createContext({ request, params }: CreateContext) {
+function createContext({ request, params, upgradedWebSocket }: CreateContext) {
 	return createAPIContext({
 		request,
 		params: params ?? {},
 		props: {},
+		upgradeWebSocket: upgradedWebSocket ?? (() => { throw new Error('WebSockets are not supported in this environment') }),
 		site: undefined,
 	});
 }

@@ -19,6 +19,7 @@ export interface Environment {
 	compressHTML: boolean;
 	renderers: SSRLoadedRenderer[];
 	clientDirectives: Map<string, string>;
+	upgradeWebSocket: (request: Request) => { socket: WebSocket; response: Response };
 	resolve: (s: string) => Promise<string>;
 	routeCache: RouteCache;
 	/**

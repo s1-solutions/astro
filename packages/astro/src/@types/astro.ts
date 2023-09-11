@@ -1830,6 +1830,10 @@ interface AstroSharedContext<
 	 */
 	props: Props;
 	/**
+	 * 
+	 */
+	upgradeWebSocket(request: Request) : { socket: WebSocket, response: Response }; 
+	/**
 	 * Redirect to another page (**SSR Only**).
 	 */
 	redirect(path: string, status?: ValidRedirectStatus): Response;

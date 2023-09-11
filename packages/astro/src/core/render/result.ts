@@ -31,6 +31,7 @@ export interface CreateResultArgs {
 	renderers: SSRLoadedRenderer[];
 	clientDirectives: Map<string, string>;
 	compressHTML: boolean;
+	upgradeWebSocket: (request: Request) => { socket: WebSocket; response: Response };
 	resolve: (s: string) => Promise<string>;
 	/**
 	 * Used for `Astro.site`
@@ -123,7 +124,7 @@ class Slots {
 }
 
 export function createResult(args: CreateResultArgs): SSRResult {
-	const { params, request, resolve, locals } = args;
+	const { params, request, resolve, upgradeWebSocket, locals } = args;
 
 	const url = new URL(request.url);
 	const headers = new Headers();
@@ -165,9 +166,8 @@ export function createResult(args: CreateResultArgs): SSRResult {
 		) {
 			const astroSlots = new Slots(result, slots, args.logger);
 
-			const Astro: AstroGlobal = {
-				// @ts-expect-error
-				__proto__: astroGlobal,
+			const Astro = {
+				...astroGlobal,
 				get clientAddress() {
 					if (!(clientAddressSymbol in request)) {
 						if (args.adapterName) {
@@ -195,6 +195,7 @@ export function createResult(args: CreateResultArgs): SSRResult {
 				locals,
 				request,
 				url,
+				upgradeWebSocket,
 				redirect(path, status) {
 					// If the response is already sent, error as we cannot proceed with the redirect.
 					if ((request as any)[responseSentSymbol]) {
@@ -212,7 +213,7 @@ export function createResult(args: CreateResultArgs): SSRResult {
 				},
 				response: response as AstroGlobal['response'],
 				slots: astroSlots as unknown as AstroGlobal['slots'],
-			};
+			} satisfies Omit<AstroGlobal, 'self'> as AstroGlobal;
 
 			return Astro;
 		},

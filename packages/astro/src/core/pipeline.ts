@@ -108,6 +108,7 @@ export class Pipeline {
 			params: renderContext.params,
 			props: renderContext.props,
 			site: env.site,
+			upgradeWebSocket: env.upgradeWebSocket,
 			adapterName: env.adapterName,
 		});
 
