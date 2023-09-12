@@ -1764,6 +1764,10 @@ export type AstroFeatureMap = {
 	 */
 	serverOutput?: SupportsKind;
 	/**
+	 * The adapter is able to serve websocket connections.
+	 */
+	upgradeWebSocket?: SupportsKind;
+	/**
 	 * The adapter can emit static assets
 	 */
 	assets?: AstroAssetsFeature;

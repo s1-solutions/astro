@@ -22,6 +22,7 @@ const ALL_UNSUPPORTED: Required<AstroFeatureMap> = {
 	serverOutput: UNSUPPORTED,
 	staticOutput: UNSUPPORTED,
 	hybridOutput: UNSUPPORTED,
+	upgradeWebSocket: UNSUPPORTED,
 	assets: UNSUPPORTED_ASSETS_FEATURE,
 };
 

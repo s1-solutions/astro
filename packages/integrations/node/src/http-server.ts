@@ -92,6 +92,12 @@ export function createServer(
 	} else {
 		httpServer = http.createServer(listener);
 	}
+	
+	httpServer.on('upgrade', (req, _socket, firstPacket) => {
+		Reflect.set(req, Symbol.for('http.incomingRequest.head'), firstPacket)
+		listener(req, {} as any)
+	});
+
 	httpServer.listen(port, host);
 	enableDestroy(httpServer);
 

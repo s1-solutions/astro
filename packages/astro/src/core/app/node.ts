@@ -9,6 +9,7 @@ import { App, type MatchOptions } from './index.js';
 export { apply as applyPolyfills } from '../polyfill.js';
 
 const clientAddressSymbol = Symbol.for('astro.clientAddress');
+const innerRequestSymbol = Symbol.for('astro.innerRequest');
 
 type CreateNodeRequestOptions = {
 	emptyBody?: boolean;
@@ -41,6 +42,7 @@ function createRequestFromNodeRequest(
 	if (req.socket?.remoteAddress) {
 		Reflect.set(request, clientAddressSymbol, req.socket.remoteAddress);
 	}
+	Reflect.set(request, innerRequestSymbol, req);
 	return request;
 }
 

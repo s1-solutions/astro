@@ -12,6 +12,7 @@ export function getAdapter(options: Options): AstroAdapter {
 			hybridOutput: 'stable',
 			staticOutput: 'stable',
 			serverOutput: 'stable',
+			upgradeWebSocket: 'experimental',
 			assets: {
 				supportKind: 'stable',
 				isSharpCompatible: true,

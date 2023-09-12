@@ -62,6 +62,8 @@ export default function (app: NodeApp, mode: Options['mode']) {
 async function writeWebResponse(app: NodeApp, res: ServerResponse, webResponse: Response) {
 	const { status, headers } = webResponse;
 
+	if (status === 202 && headers.has("X-Upgraded-WebSocket")) { return }
+
 	if (app.setCookieHeaders) {
 		const setCookieHeaders: Array<string> = Array.from(app.setCookieHeaders(webResponse));
 
