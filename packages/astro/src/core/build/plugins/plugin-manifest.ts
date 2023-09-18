@@ -238,7 +238,12 @@ function buildManifest(
 		entryModules[BEFORE_HYDRATION_SCRIPT_ID] = '';
 	}
 
+	const reusableScripts =
+		Array.from(internals.reusableScriptSpecifierToBundleIdMap)
+		.map(([virtual, real]) => ({ virtual, real }))
+
 	const ssrManifest: SerializedSSRManifest = {
+		reusableScripts,
 		adapterName: opts.settings.adapter?.name ?? '',
 		routes,
 		site: settings.config.site,

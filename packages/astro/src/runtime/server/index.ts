@@ -16,6 +16,7 @@ export {
 	addAttribute,
 	createHeadAndContent,
 	defineScriptVars,
+	defineArgs,
 	Fragment,
 	maybeRenderHead,
 	renderTemplate as render,

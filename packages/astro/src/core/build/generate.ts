@@ -624,6 +624,7 @@ export function createBuildManifest(
 	renderers: SSRLoadedRenderer[]
 ): SSRManifest {
 	return {
+		reusableScripts: Array.from(internals.reusableScriptSpecifierToBundleIdMap).map(([ virtual, real ]) => ({ virtual, real})),
 		assets: new Set(),
 		entryModules: Object.fromEntries(internals.entrySpecifierToBundleMap.entries()),
 		routes: [],
@@ -637,5 +638,6 @@ export function createBuildManifest(
 			? new URL(settings.config.base, settings.config.site).toString()
 			: settings.config.site,
 		componentMetadata: internals.componentMetadata,
+
 	};
 }

@@ -4,6 +4,7 @@ import type {
 	Params,
 	SSRElement,
 	SSRLoadedRenderer,
+	SSRManifest,
 	SSRResult,
 } from '../../@types/astro.js';
 import { renderSlotToString, type ComponentSlots } from '../../runtime/server/index.js';
@@ -17,6 +18,7 @@ const clientAddressSymbol = Symbol.for('astro.clientAddress');
 const responseSentSymbol = Symbol.for('astro.responseSent');
 
 export interface CreateResultArgs {
+	reusableScripts: SSRManifest['reusableScripts'];
 	/**
 	 * Used to provide better error messages for `Astro.clientAddress`
 	 */
@@ -148,6 +150,7 @@ export function createResult(args: CreateResultArgs): SSRResult {
 	// This object starts here as an empty shell (not yet the result) but then
 	// calling the render() function will populate the object with scripts, styles, etc.
 	const result: SSRResult = {
+		reusableScripts: args.reusableScripts,
 		styles: args.styles ?? new Set<SSRElement>(),
 		scripts: args.scripts ?? new Set<SSRElement>(),
 		links: args.links ?? new Set<SSRElement>(),

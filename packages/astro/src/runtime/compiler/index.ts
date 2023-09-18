@@ -8,6 +8,7 @@ export {
 	createTransitionScope,
 	defineScriptVars,
 	defineStyleVars,
+	defineArgs,
 	maybeRenderHead,
 	mergeSlots,
 	render,

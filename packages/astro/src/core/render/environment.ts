@@ -1,4 +1,4 @@
-import type { RuntimeMode, SSRLoadedRenderer } from '../../@types/astro.js';
+import type { RuntimeMode, SSRLoadedRenderer, SSRManifest } from '../../@types/astro.js';
 import type { Logger } from '../logger/core.js';
 import type { RouteCache } from './route-cache.js';
 
@@ -8,6 +8,7 @@ import type { RouteCache } from './route-cache.js';
  * Thus, they can be created once and passed through to renderPage on each request.
  */
 export interface Environment {
+	reusableScripts: SSRManifest['reusableScripts'];
 	/**
 	 * Used to provide better error messages for `Astro.clientAddress`
 	 */

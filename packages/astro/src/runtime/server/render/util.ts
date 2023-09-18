@@ -1,4 +1,4 @@
-import type { SSRElement } from '../../../@types/astro.js';
+import type { SSRElement, SSRResult } from '../../../@types/astro.js';
 import type { RenderDestination, RenderDestinationChunk, RenderFunction } from './common.js';
 
 import { clsx } from 'clsx';
@@ -46,6 +46,15 @@ export function defineScriptVars(vars: Record<any, any>) {
 		)};\n`;
 	}
 	return markHTMLString(output);
+}
+
+export function defineArgs(result: SSRResult, virtualSpecifier: string, args: any) {
+	const { real: realSpecifier } = result.reusableScripts.find(script => script.virtual === virtualSpecifier)!;
+	const script = `<script type="module">
+	import reusableFunction from "${realSpecifier}"
+	reusableFunction(JSON.parse("${JSON.stringify(args).replace('"', '\\"')}"))
+</script>`;
+	return markHTMLString(script);
 }
 
 export function formatList(values: string[]): string {

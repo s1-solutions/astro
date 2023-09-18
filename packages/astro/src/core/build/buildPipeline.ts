@@ -2,6 +2,7 @@ import type { AstroConfig, AstroSettings, SSRLoadedRenderer } from '../../@types
 import { getOutputDirectory, isServerLikeOutput } from '../../prerender/utils.js';
 import { BEFORE_HYDRATION_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import type { SSRManifest } from '../app/types.js';
+import { MarkdownImageNotFound } from '../errors/errors-data.js';
 import { Logger } from '../logger/core.js';
 import { Pipeline } from '../pipeline.js';
 import { createEnvironment } from '../render/index.js';
@@ -28,6 +29,7 @@ export class BuildPipeline extends Pipeline {
 		const ssr = isServerLikeOutput(staticBuildOptions.settings.config);
 		super(
 			createEnvironment({
+				reusableScripts: manifest.reusableScripts,
 				adapterName: manifest.adapterName,
 				logger: staticBuildOptions.logger,
 				mode: staticBuildOptions.mode,

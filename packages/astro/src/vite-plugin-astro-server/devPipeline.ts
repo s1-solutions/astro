@@ -73,6 +73,7 @@ export default class DevPipeline extends Pipeline {
 	): Environment {
 		const mode: RuntimeMode = 'development';
 		return createEnvironment({
+			reusableScripts: manifest.reusableScripts,
 			adapterName: manifest.adapterName,
 			logger,
 			mode,

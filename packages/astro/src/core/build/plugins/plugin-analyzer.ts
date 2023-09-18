@@ -234,6 +234,8 @@ function finalizeImpl(
 			uniqueHoistedIds.set(uniqueHoistedId, moduleId);
 		}
 
+		hoistedSet.forEach(id => internals.reusableScriptSpecifierToBundleIdMap.set(id, moduleId))
+
 		internals.discoveredScripts.add(moduleId);
 
 		pageData.propagatedScripts = propagatedMapByImporter;

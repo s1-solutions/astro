@@ -84,6 +84,7 @@ export class App {
 	 */
 	#createEnvironment(streaming = false) {
 		return createEnvironment({
+			reusableScripts: this.#manifest.reusableScripts,
 			adapterName: this.#manifest.adapterName,
 			logger: this.#logger,
 			mode: 'production',

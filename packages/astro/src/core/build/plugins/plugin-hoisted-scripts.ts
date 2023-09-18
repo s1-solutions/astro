@@ -5,6 +5,7 @@ import type { BuildInternals } from '../internal.js';
 import { getPageDataByViteID } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin.js';
 import type { OutputChunk, StaticBuildOptions } from '../types.js';
+import { prependForwardSlash } from '@astrojs/internal-helpers/path';
 
 function virtualHoistedEntry(id: string) {
 	return id.startsWith('/astro/hoisted.js?q=');
@@ -32,7 +33,7 @@ export function vitePluginHoistedScripts(
 					if (importPath.startsWith('/@fs')) {
 						importPath = importPath.slice('/@fs'.length);
 					}
-					code += `import "${importPath}";`;
+					code += `export { default } from "${importPath}";`;
 				}
 				return {
 					code,
@@ -66,7 +67,12 @@ export function vitePluginHoistedScripts(
 				}
 			});
 
-			for (const [id, output] of considerInlining.entries()) {
+			for (const [id, output] of considerInlining) {
+				for (const [virtualSpecifier, intermediateVirtualId] of internals.reusableScriptSpecifierToBundleIdMap) {
+					if (output.moduleIds.includes(intermediateVirtualId)) {
+						internals.reusableScriptSpecifierToBundleIdMap.set(virtualSpecifier, prependForwardSlash(output.fileName))
+					}
+				}
 				const canBeInlined =
 					importedByOtherScripts.has(output.fileName) === false &&
 					output.imports.length === 0 &&
@@ -96,7 +102,7 @@ export function vitePluginHoistedScripts(
 
 				// Remove the bundle if it was inlined
 				if (removeFromBundle) {
-					delete bundle[id];
+					// delete bundle[id];
 				}
 			}
 		},

@@ -21,13 +21,27 @@ export interface BuildInternals {
 	 */
 	cssModuleToChunkIdMap: Map<string, string>;
 
-	// A mapping of hoisted script ids back to the exact hoisted scripts it references
+	/**
+	 * A mapping of hoisted script ids back to the exact hoisted scripts it references
+	 */
 	hoistedScriptIdToHoistedMap: Map<string, Set<string>>;
-	// A mapping of hoisted script ids back to the pages which reference it
+	
+	/**
+	 * A mapping of hoisted script ids back to the pages which reference it
+	 */
 	hoistedScriptIdToPagesMap: Map<string, Set<string>>;
 
-	// A mapping of specifiers like astro/client/idle.js to the hashed bundled name.
-	// Used to render pages with the correct specifiers.
+	/**
+	 * When define:args is used on a script tag, the compiler creates
+	 * references to virtual specifiers. This map is used to transform
+	 * the specifiers into the real file names created by vite.
+	 */
+	reusableScriptSpecifierToBundleIdMap: Map<string, string>;
+
+	/**
+	 * A mapping of specifiers like astro/client/idle.js to the hashed bundled name.
+	 * Used to render pages with the correct specifiers.
+	 */ 
 	entrySpecifierToBundleMap: Map<string, string>;
 
 	/**
@@ -109,6 +123,7 @@ export function createBuildInternals(): BuildInternals {
 		cssModuleToChunkIdMap: new Map(),
 		hoistedScriptIdToHoistedMap,
 		hoistedScriptIdToPagesMap,
+		reusableScriptSpecifierToBundleIdMap: new Map<string, string>(),
 		entrySpecifierToBundleMap: new Map<string, string>(),
 		pageToBundleMap: new Map<string, string>(),
 		pagesByComponent: new Map(),

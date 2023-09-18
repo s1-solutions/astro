@@ -49,6 +49,7 @@ export type SSRManifest = {
 	componentMetadata: SSRResult['componentMetadata'];
 	pageModule?: SinglePageBuiltModule;
 	pageMap?: Map<ComponentPath, ImportComponentInstance>;
+	reusableScripts: Array<{ virtual: string, real: string }>;
 };
 
 export type SerializedSSRManifest = Omit<

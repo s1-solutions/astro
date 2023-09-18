@@ -8,4 +8,4 @@ export type { RenderInstruction } from './instruction.js';
 export { renderPage } from './page.js';
 export { renderSlot, renderSlotToString, type ComponentSlots } from './slot.js';
 export { renderScriptElement, renderUniqueStylesheet } from './tags.js';
-export { addAttribute, defineScriptVars, voidElementNames } from './util.js';
+export { addAttribute, defineScriptVars, defineArgs, voidElementNames } from './util.js';

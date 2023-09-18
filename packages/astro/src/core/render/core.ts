@@ -37,6 +37,7 @@ export async function renderPage({ mod, renderContext, env, cookies }: RenderPag
 		throw new Error(`Expected an exported Astro component but received typeof ${typeof Component}`);
 
 	const result = createResult({
+		reusableScripts: env.reusableScripts,
 		adapterName: env.adapterName,
 		links: renderContext.links,
 		styles: renderContext.styles,
@@ -55,6 +56,7 @@ export async function renderPage({ mod, renderContext, env, cookies }: RenderPag
 		status: renderContext.status ?? 200,
 		cookies,
 		locals: renderContext.locals ?? {},
+
 	});
 
 	// TODO: Remove in Astro 4.0

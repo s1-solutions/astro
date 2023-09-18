@@ -14,7 +14,7 @@ import type * as rollup from 'rollup';
 import type { TsConfigJson } from 'tsconfig-resolver';
 import type * as vite from 'vite';
 import type { RemotePattern } from '../assets/utils/remotePattern.js';
-import type { SerializedSSRManifest } from '../core/app/types.js';
+import type { SSRManifest, SerializedSSRManifest } from '../core/app/types.js';
 import type { PageBuildData } from '../core/build/types.js';
 import type { AstroConfigType } from '../core/config/index.js';
 import type { AstroTimer } from '../core/config/timer.js';
@@ -2174,6 +2174,7 @@ export type SSRComponentMetadata = {
 };
 
 export interface SSRResult {
+	reusableScripts: SSRManifest['reusableScripts']
 	styles: Set<SSRElement>;
 	scripts: Set<SSRElement>;
 	links: Set<SSRElement>;
