@@ -12,6 +12,7 @@ export function getAdapter(options: Options): AstroAdapter {
 			hybridOutput: 'stable',
 			staticOutput: 'stable',
 			serverOutput: 'stable',
+			reroute: 'experimental',
 			assets: {
 				supportKind: 'stable',
 				isSharpCompatible: true,
@@ -44,6 +45,7 @@ export default function createIntegration(userOptions: UserOptions): AstroIntegr
 			},
 			'astro:config:done': ({ setAdapter, config }) => {
 				_options = {
+					maxRerouteDepth: 1,
 					...userOptions,
 					client: config.build.client?.toString(),
 					server: config.build.server?.toString(),

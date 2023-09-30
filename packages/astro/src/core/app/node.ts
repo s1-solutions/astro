@@ -121,11 +121,11 @@ export class NodeApp extends App {
 		}
 		return super.match(req, opts);
 	}
-	render(req: NodeIncomingMessage | Request, routeData?: RouteData, locals?: object) {
+	render(req: NodeIncomingMessage | Request, routeData?: RouteData, locals?: object, runMiddleware?: boolean) {
 		if (!(req instanceof Request)) {
 			req = createRequestFromNodeRequest(req);
 		}
-		return super.render(req, routeData, locals);
+		return super.render(req, routeData, locals, runMiddleware);
 	}
 }
 

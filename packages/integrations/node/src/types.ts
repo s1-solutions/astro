@@ -8,9 +8,11 @@ export interface UserOptions {
 	 * - 'standalone' - Build to a standalone server. The server starts up just by running the built script.
 	 */
 	mode: 'middleware' | 'standalone';
+	maxRerouteDepth?: number;
 }
 
 export interface Options extends UserOptions {
+	maxRerouteDepth: number
 	host: string | boolean;
 	port: number;
 	server: string;
