@@ -25,7 +25,7 @@ import {
 } from '../render/ssr-element.js';
 import { matchRoute } from '../routing/match.js';
 import { EndpointNotFoundError, SSRRoutePipeline } from './ssrPipeline.js';
-import type { RouteInfo } from './types.js';
+import type { RerouteImplementation, RouteInfo } from './types.js';
 export { deserializeManifest } from './common.js';
 
 const clientLocalsSymbol = Symbol.for('astro.locals');
@@ -57,6 +57,7 @@ export class App {
 	#baseWithoutTrailingSlash: string;
 	#pipeline: SSRRoutePipeline;
 	#adapterLogger: AstroIntegrationLogger;
+	#rerouteImpl: RerouteImplementation = () => { throw new Error('reroute function not set by the adapter.') };
 
 	constructor(manifest: SSRManifest, streaming = true) {
 		this.#manifest = manifest;
@@ -83,6 +84,7 @@ export class App {
 	 * @private
 	 */
 	#createEnvironment(streaming = false) {
+		const appThis = this
 		return createEnvironment({
 			adapterName: this.#manifest.adapterName,
 			logger: this.#logger,
@@ -105,11 +107,17 @@ export class App {
 					}
 				}
 			},
+			// this is a getter because environment gets created in App's constructor but reroute function would be set later 
+			get rerouteImpl() { return appThis.#rerouteImpl },
 			routeCache: new RouteCache(this.#logger),
 			site: this.#manifest.site,
 			ssr: true,
 			streaming,
 		});
+	}
+
+	setReroute(reroute: RerouteImplementation) {
+		this.#rerouteImpl = reroute;
 	}
 
 	set setManifestData(newManifestData: ManifestData) {
@@ -132,7 +140,8 @@ export class App {
 		return routeData;
 	}
 
-	async render(request: Request, routeData?: RouteData, locals?: object): Promise<Response> {
+	// TODO(breaking): render(request, renderOptions)
+	async render(request: Request, routeData?: RouteData, locals?: object, runMiddleware = true): Promise<Response> {
 		// Handle requests with duplicate slashes gracefully by cloning with a cleaned-up request URL
 		if (request.url !== collapseDuplicateSlashes(request.url)) {
 			request = new Request(collapseDuplicateSlashes(request.url), request);
@@ -158,11 +167,16 @@ export class App {
 			mod,
 			defaultStatus
 		);
-		let response;
+		
+		if (runMiddleware === false) {
+			this.#pipeline.setMiddlewareFunction(undefined);
+		}
+		else if (mod.onRequest) {
+			this.#pipeline.setMiddlewareFunction(mod.onRequest as MiddlewareEndpointHandler);
+		}
+
+		let response: Response;
 		try {
-			if (mod.onRequest) {
-				this.#pipeline.setMiddlewareFunction(mod.onRequest as MiddlewareEndpointHandler);
-			}
 			response = await this.#pipeline.renderRoute(renderContext, pageModule);
 		} catch (err: any) {
 			if (err instanceof EndpointNotFoundError) {

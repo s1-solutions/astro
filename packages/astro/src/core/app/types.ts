@@ -13,6 +13,10 @@ export type StylesheetAsset =
 	| { type: 'inline'; content: string }
 	| { type: 'external'; src: string };
 
+export interface RerouteImplementation {
+	(path: URL | string, context: { request: Request, locals: object }): Promise<Response> | Response
+}
+
 export interface RouteInfo {
 	routeData: RouteData;
 	file: string;

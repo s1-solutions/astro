@@ -1790,6 +1790,10 @@ export type AstroFeatureMap = {
 	 * The adapter can emit static assets
 	 */
 	assets?: AstroAssetsFeature;
+	/**
+	 * The adapter is able to switch matched routes
+	 */
+	reroute?: Exclude<SupportsKind, 'stable' | 'deprecated'>;
 };
 
 export interface AstroAssetsFeature {
@@ -1827,7 +1831,7 @@ export type ValidRedirectStatus = 300 | 301 | 302 | 303 | 304 | 307 | 308;
 interface AstroSharedContext<
 	Props extends Record<string, any> = Record<string, any>,
 	RouteParams extends Record<string, string | undefined> = Record<string, string | undefined>,
-> {
+> extends Reroute {
 	/**
 	 * The address (usually IP address) of the user. Used with SSR only.
 	 */
@@ -1862,6 +1866,26 @@ interface AstroSharedContext<
 	 */
 	locals: App.Locals;
 }
+
+export interface Reroute {
+	/**
+	 * Matches the current request to another page, and renders a response using it.
+	 * 
+	 * The response will be 404 if no matching page is found.
+	 * If 404.astro is authored by the user, it will be used.
+	 * If not, astro's default 404 page will be used.
+	 * 
+	 * The response will be 500 if generating the page throws an error.
+	 * If 500.astro is authored by the user, it will be used.
+	 * If not, astro's default 500 page will be used.
+	 * 
+	 * @param path the target path within your app that should handle the current request instead
+	 * @param options yet to be determined if these are needed
+	 * @returns The resulting response from rendering the page routed at `path`.
+	 */
+	reroute(path: URL | string, options?: {}): Promise<Response>;
+}
+
 
 export interface APIContext<
 	Props extends Record<string, any> = Record<string, any>,

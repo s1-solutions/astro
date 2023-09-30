@@ -23,11 +23,12 @@ const ALL_UNSUPPORTED: Required<AstroFeatureMap> = {
 	staticOutput: UNSUPPORTED,
 	hybridOutput: UNSUPPORTED,
 	assets: UNSUPPORTED_ASSETS_FEATURE,
+	reroute: UNSUPPORTED
 };
 
-type ValidationResult = {
+type ValidationResult = Required<{
 	[Property in keyof AstroFeatureMap]: boolean;
-};
+}>;
 
 /**
  * Checks whether an adapter supports certain features that are enabled via Astro configuration.
@@ -43,39 +44,49 @@ export function validateSupportedFeatures(
 	logger: Logger
 ): ValidationResult {
 	const {
-		assets = UNSUPPORTED_ASSETS_FEATURE,
-		serverOutput = UNSUPPORTED,
-		staticOutput = UNSUPPORTED,
-		hybridOutput = UNSUPPORTED,
+		assets: assetsFeature = UNSUPPORTED_ASSETS_FEATURE,
+		serverOutput: serverOutputSupportKind = UNSUPPORTED,
+		staticOutput: staticOutputSupportKind = UNSUPPORTED,
+		hybridOutput: hybridOutputSupportKind = UNSUPPORTED,
+		reroute: rerouteSupportKind = UNSUPPORTED
 	} = featureMap;
-	const validationResult: ValidationResult = {};
 
-	validationResult.staticOutput = validateSupportKind(
-		staticOutput,
+	const staticOutput = validateSupportKind(
+		staticOutputSupportKind,
 		adapterName,
 		logger,
 		'staticOutput',
 		() => config?.output === 'static'
 	);
 
-	validationResult.hybridOutput = validateSupportKind(
-		hybridOutput,
+	const hybridOutput = validateSupportKind(
+		hybridOutputSupportKind,
 		adapterName,
 		logger,
 		'hybridOutput',
 		() => config?.output === 'hybrid'
 	);
 
-	validationResult.serverOutput = validateSupportKind(
-		serverOutput,
+	const serverOutput = validateSupportKind(
+		serverOutputSupportKind,
 		adapterName,
 		logger,
 		'serverOutput',
 		() => config?.output === 'server'
 	);
-	validationResult.assets = validateAssetsFeature(assets, adapterName, config, logger);
 
-	return validationResult;
+	const assets = validateAssetsFeature(assetsFeature, adapterName, config, logger);
+
+	const reroute = validateSupportKind(
+		rerouteSupportKind,
+		adapterName,
+		logger,
+		'reroute',
+		// () => config?.experimental?.reroute
+		() => true
+	);
+
+	return { staticOutput, hybridOutput, serverOutput, assets, reroute };
 }
 
 function validateSupportKind(

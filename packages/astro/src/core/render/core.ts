@@ -44,6 +44,7 @@ export async function renderPage({ mod, renderContext, env, cookies }: RenderPag
 		params: renderContext.params,
 		pathname: renderContext.pathname,
 		componentMetadata: renderContext.componentMetadata,
+		rerouteImpl: env.rerouteImpl,
 		resolve: env.resolve,
 		renderers: env.renderers,
 		clientDirectives: env.clientDirectives,
@@ -106,6 +107,7 @@ export async function tryRenderRoute<MiddlewareReturnType = Response>(
 		props: renderContext.props,
 		site: env.site,
 		adapterName: env.adapterName,
+		rerouteImpl: env.rerouteImpl,
 	});
 
 	switch (renderContext.route.type) {

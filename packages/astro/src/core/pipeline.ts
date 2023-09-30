@@ -51,7 +51,7 @@ export class Pipeline {
 	/**
 	 * A middleware function that will be called before each request.
 	 */
-	setMiddlewareFunction(onRequest: MiddlewareEndpointHandler) {
+	setMiddlewareFunction(onRequest: MiddlewareEndpointHandler | undefined) {
 		this.#onRequest = onRequest;
 	}
 
@@ -109,6 +109,7 @@ export class Pipeline {
 			props: renderContext.props,
 			site: env.site,
 			adapterName: env.adapterName,
+			rerouteImpl: env.rerouteImpl,
 		});
 
 		switch (renderContext.route.type) {

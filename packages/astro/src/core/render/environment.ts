@@ -1,4 +1,5 @@
 import type { RuntimeMode, SSRLoadedRenderer } from '../../@types/astro.js';
+import type { RerouteImplementation } from '../app/types.js';
 import type { Logger } from '../logger/core.js';
 import type { RouteCache } from './route-cache.js';
 
@@ -29,6 +30,7 @@ export interface Environment {
 	 * Value of Astro config's `output` option, true if "server" or "hybrid"
 	 */
 	ssr: boolean;
+	rerouteImpl: RerouteImplementation;
 	streaming: boolean;
 }
 

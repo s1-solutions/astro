@@ -11,6 +11,7 @@ import { renderJSX } from '../../runtime/server/jsx.js';
 import { chunkToString } from '../../runtime/server/render/index.js';
 import { AstroCookies } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
+import type { RerouteImplementation } from '../app/types.js';
 import type { Logger } from '../logger/core.js';
 
 const clientAddressSymbol = Symbol.for('astro.clientAddress');
@@ -31,6 +32,7 @@ export interface CreateResultArgs {
 	renderers: SSRLoadedRenderer[];
 	clientDirectives: Map<string, string>;
 	compressHTML: boolean;
+	rerouteImpl: RerouteImplementation;
 	resolve: (s: string) => Promise<string>;
 	/**
 	 * Used for `Astro.site`
@@ -123,16 +125,16 @@ class Slots {
 }
 
 export function createResult(args: CreateResultArgs): SSRResult {
-	const { params, request, resolve, locals } = args;
+	const { params, request, rerouteImpl, resolve, locals } = args;
 
 	const url = new URL(request.url);
 	const headers = new Headers();
 	headers.set('Content-Type', 'text/html');
-	const response: ResponseInit = {
+	const response = {
 		status: args.status,
 		statusText: 'OK',
 		headers,
-	};
+	} satisfies ResponseInit;
 
 	// Make headers be read-only
 	Object.defineProperty(response, 'headers', {
@@ -165,9 +167,8 @@ export function createResult(args: CreateResultArgs): SSRResult {
 		) {
 			const astroSlots = new Slots(result, slots, args.logger);
 
-			const Astro: AstroGlobal = {
-				// @ts-expect-error
-				__proto__: astroGlobal,
+			const Astro = {
+				...astroGlobal,
 				get clientAddress() {
 					if (!(clientAddressSymbol in request)) {
 						if (args.adapterName) {
@@ -195,6 +196,9 @@ export function createResult(args: CreateResultArgs): SSRResult {
 				locals,
 				request,
 				url,
+				async reroute(path, _options) {
+					return rerouteImpl(path, { request, locals });
+				},
 				redirect(path, status) {
 					// If the response is already sent, error as we cannot proceed with the redirect.
 					if ((request as any)[responseSentSymbol]) {
@@ -210,11 +214,12 @@ export function createResult(args: CreateResultArgs): SSRResult {
 						},
 					});
 				},
-				response: response as AstroGlobal['response'],
-				slots: astroSlots as unknown as AstroGlobal['slots'],
-			};
+				response,
+				slots: astroSlots as typeof astroSlots & Record<string, true | undefined>
+			} satisfies Omit<AstroGlobal, 'self'>;
 
-			return Astro;
+			// 'self' is set right after createAstro is called.
+			return Astro as typeof Astro & { self: AstroGlobal['self'] };
 		},
 		resolve,
 		response,

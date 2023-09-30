@@ -85,6 +85,7 @@ export default class DevPipeline extends Pipeline {
 			site: manifest.site,
 			ssr: isServerLikeOutput(settings.config),
 			streaming: true,
+			rerouteImpl: (path, context) => { return new Response(".reroute() has not been implemented for dev mode.") }
 		});
 	}
 

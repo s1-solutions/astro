@@ -13,6 +13,7 @@ import { AstroCookies, attachCookiesToResponse } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { callMiddleware } from '../middleware/callMiddleware.js';
 import type { Environment, RenderContext } from '../render/index.js';
+import type { RerouteImplementation } from '../app/types.js';
 
 const encoder = new TextEncoder();
 
@@ -25,6 +26,7 @@ type CreateAPIContext = {
 	site?: string;
 	props: Record<string, any>;
 	adapterName?: string;
+	rerouteImpl: RerouteImplementation
 };
 
 /**
@@ -38,6 +40,7 @@ export function createAPIContext({
 	site,
 	props,
 	adapterName,
+	rerouteImpl
 }: CreateAPIContext): APIContext {
 	initResponseWithEncoding();
 	const context = {
@@ -47,6 +50,9 @@ export function createAPIContext({
 		site: site ? new URL(site) : undefined,
 		generator: `Astro v${ASTRO_VERSION}`,
 		props,
+		async reroute(path, _options) {
+			return rerouteImpl(path, context)
+		},
 		redirect(path, status) {
 			return new Response(null, {
 				status: status || 302,
@@ -69,9 +75,9 @@ export function createAPIContext({
 				}
 			}
 
-			return Reflect.get(request, clientAddressSymbol);
+			return Reflect.get(request, clientAddressSymbol) as string;
 		},
-	} as APIContext;
+	} satisfies Omit<APIContext, 'locals'> as APIContext;
 
 	// We define a custom property, so we can check the value passed to locals
 	Object.defineProperty(context, 'locals', {
@@ -143,6 +149,7 @@ export async function callEndpoint<MiddlewareResult = Response | EndpointOutput>
 		props: ctx.props,
 		site: env.site,
 		adapterName: env.adapterName,
+		rerouteImpl: env.rerouteImpl,
 	});
 
 	let response;
