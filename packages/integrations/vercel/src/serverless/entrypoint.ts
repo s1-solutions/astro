@@ -2,6 +2,7 @@ import type { SSRManifest } from 'astro';
 import { App } from 'astro/app';
 import { applyPolyfills } from 'astro/app/node';
 import type { IncomingMessage, ServerResponse } from 'node:http';
+import { rerouteImpl } from './reroute.js';
 
 import { ASTRO_LOCALS_HEADER } from './adapter.js';
 import { getRequest, setResponse } from './request-transform.js';
@@ -10,6 +11,7 @@ applyPolyfills();
 
 export const createExports = (manifest: SSRManifest) => {
 	const app = new App(manifest);
+	app.setReroute(rerouteImpl);
 
 	const handler = async (req: IncomingMessage, res: ServerResponse) => {
 		let request: Request;

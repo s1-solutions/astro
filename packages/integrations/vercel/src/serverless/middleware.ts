@@ -60,11 +60,13 @@ function edgeMiddlewareTemplate(middlewarePath: string, vercelEdgeMiddlewareHand
 	${handlerTemplateImport}
 import { onRequest } from ${middlewarePath};
 import { createContext, trySerializeLocals } from 'astro/middleware';
+import { rerouteImpl } from "@astrojs/vercel/serverless/reroute.js"
 export default async function middleware(request, context) {
 	const url = new URL(request.url);
 	const ctx = createContext({
 		request,
-		params: {}
+		params: {},
+		rerouteImpl,
 	});
 	ctx.locals = ${handlerTemplateCall};
 	const next = async () => {

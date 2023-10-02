@@ -25,7 +25,7 @@ export type CreateContext = {
 	rerouteImpl?: RerouteImplementation;
 };
 
-const defaultRerouteImpl: RerouteImplementation = (path, context) => { throw new Error(`.reroute() has not been implemented for edge middleware.`) }
+const defaultRerouteImpl: RerouteImplementation = (path, context) => { throw new Error(`.reroute() has not been implemented for this edge middleware.`) }
 
 /**
  * Creates a context to be passed to Astro middleware `onRequest` function.

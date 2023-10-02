@@ -61,6 +61,7 @@ function getAdapter({
 			hybridOutput: 'stable',
 			staticOutput: 'stable',
 			serverOutput: 'stable',
+			reroute: 'experimental',
 			assets: {
 				supportKind: 'stable',
 				isSharpCompatible: true,
