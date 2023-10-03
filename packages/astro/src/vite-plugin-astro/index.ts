@@ -107,6 +107,7 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 					};
 
 					switch (hoistedScript.type) {
+						// @ts-expect-error
 						case 'reusable':
 						case 'inline': {
 							const { code, map } = hoistedScript;

@@ -86,6 +86,7 @@ export default function createVitePluginAstroServer({
  */
 export function createDevelopmentManifest(settings: AstroSettings): SSRManifest {
 	return {
+		reusableScripts: [],
 		compressHTML: settings.config.compressHTML,
 		assets: new Set(),
 		entryModules: {},

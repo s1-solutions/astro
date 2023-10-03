@@ -52,7 +52,7 @@ export function defineArgs(result: SSRResult, virtualSpecifier: string, args: an
 	const { real: realSpecifier } = result.reusableScripts.find(script => script.virtual === virtualSpecifier)!;
 	const script = `<script type="module">
 	import reusableFunction from "${realSpecifier}"
-	reusableFunction(JSON.parse("${JSON.stringify(args).replace('"', '\\"')}"))
+	reusableFunction(${JSON.stringify(args)})
 </script>`;
 	return markHTMLString(script);
 }

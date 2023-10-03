@@ -73,6 +73,7 @@ export function vitePluginHoistedScripts(
 						internals.reusableScriptSpecifierToBundleIdMap.set(virtualSpecifier, prependForwardSlash(output.fileName))
 					}
 				}
+				if (output.code.includes("export")) continue
 				const canBeInlined =
 					importedByOtherScripts.has(output.fileName) === false &&
 					output.imports.length === 0 &&
