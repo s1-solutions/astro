@@ -161,12 +161,10 @@ export function createResult(args: CreateResultArgs): SSRResult {
 		createAstro(
 			astroGlobal: AstroGlobalPartial,
 			props: Record<string, any>,
-			slots: Record<string, any> | null,
-			_context: Record<string, unknown> | undefined
+			slots: Record<string, any>,
+			context: Record<string, unknown>
 		) {
 			const astroSlots = new Slots(result, slots, args.logger);
-
-			const context = _context ? _context: (console.log("creating context"), {})
 
 			const Astro = {
 				...astroGlobal,
@@ -214,7 +212,7 @@ export function createResult(args: CreateResultArgs): SSRResult {
 				},
 				response: response as AstroGlobal['response'],
 				slots: astroSlots as unknown as AstroGlobal['slots'],
-				context: { ...context }
+				context
 			} satisfies Omit<AstroGlobal, 'self'>;
 
 			return Astro as typeof Astro & { self: AstroComponentFactory };

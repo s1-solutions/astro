@@ -36,7 +36,7 @@ export function renderSlot(
 ): RenderInstance {
 	return {
 		async render(destination) {
-			const child = typeof slotted === 'function' ? slotted(result, context) : slotted
+			const child = typeof slotted === 'function' ? slotted(result, structuredClone(context)) : slotted
 			await renderChild(destination, child);
 		},
 	};
