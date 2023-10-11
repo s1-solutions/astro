@@ -275,7 +275,7 @@ async function render({
 		if (propagationMod == null || typeof propagationMod !== 'object') throw UnexpectedRenderError;
 
 		const Content = createComponent({
-			factory(result, baseProps, slots) {
+			factory(result, baseProps, slots, context) {
 				let styles = '',
 					links = '',
 					scripts = '';
@@ -319,7 +319,8 @@ async function render({
 						'Content',
 						propagationMod.Content,
 						props,
-						slots
+						slots,
+						context
 					)}`
 				);
 			},

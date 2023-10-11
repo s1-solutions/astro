@@ -23,7 +23,7 @@ export async function renderHTMLElement(
 	}
 
 	return markHTMLString(
-		`<${name}${attrHTML}>${await renderSlotToString(result, slots?.default)}</${name}>`
+		`<${name}${attrHTML}>${await renderSlotToString(result, slots?.default, {})}</${name}>`
 	);
 }
 

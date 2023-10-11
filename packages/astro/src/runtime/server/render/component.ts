@@ -78,7 +78,8 @@ async function renderFrameworkComponent(
 	displayName: string,
 	Component: unknown,
 	_props: Record<string | number, any>,
-	slots: any = {}
+	slots: any = {},
+	context: any
 ): Promise<RenderInstance> {
 	if (!Component && !_props['client:only']) {
 		throw new Error(
@@ -108,7 +109,7 @@ async function renderFrameworkComponent(
 
 	const probableRendererNames = guessRenderers(metadata.componentUrl);
 	const validRenderers = renderers.filter((r) => r.name !== 'astro:jsx');
-	const { children, slotInstructions } = await renderSlots(result, slots);
+	const { children, slotInstructions } = await renderSlots(result, slots, context);
 
 	// Call the renderers `check` hook to see if any claim this component.
 	let renderer: SSRLoadedRenderer | undefined;
@@ -240,7 +241,7 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 		}
 	} else {
 		if (metadata.hydrate === 'only') {
-			html = await renderSlotToString(result, slots?.fallback);
+			html = await renderSlotToString(result, slots?.fallback, context);
 		} else {
 			({ html, attrs } = await renderer.ssr.renderToStaticMarkup.call(
 				{ result },
@@ -389,9 +390,10 @@ function sanitizeElementName(tag: string) {
 
 async function renderFragmentComponent(
 	result: SSRResult,
-	slots: ComponentSlots = {}
+	slots: ComponentSlots = {},
+	context: Record<string | number | symbol, unknown>
 ): Promise<RenderInstance> {
-	const children = await renderSlotToString(result, slots?.default);
+	const children = await renderSlotToString(result, slots?.default, context);
 	return {
 		render(destination) {
 			if (children == null) return;
@@ -406,7 +408,7 @@ async function renderHTMLComponent(
 	_props: Record<string | number, any>,
 	slots: any = {}
 ): Promise<RenderInstance> {
-	const { slotInstructions, children } = await renderSlots(result, slots);
+	const { slotInstructions, children } = await renderSlots(result, slots, {});
 	const html = (Component as any)({ slots: children });
 	const hydrationHtml = slotInstructions
 		? slotInstructions.map((instr) => chunkToString(result, instr)).join('')
@@ -423,9 +425,10 @@ function renderAstroComponent(
 	displayName: string,
 	Component: AstroComponentFactory,
 	props: Record<string | number, any>,
-	slots: any = {}
+	slots: any,
+	context: any
 ): RenderInstance {
-	const instance = createAstroComponentInstance(result, displayName, Component, props, slots);
+	const instance = createAstroComponentInstance(result, displayName, Component, props, slots, context);
 	return {
 		async render(destination) {
 			// NOTE: This render call can't be pre-invoked outside of this function as it'll also initialize the slots
@@ -441,14 +444,15 @@ export async function renderComponent(
 	displayName: string,
 	Component: unknown,
 	props: Record<string | number, any>,
-	slots: any = {}
+	slots: any,
+	context: any
 ): Promise<RenderInstance> {
 	if (isPromise(Component)) {
 		Component = await Component;
 	}
 
 	if (isFragmentComponent(Component)) {
-		return await renderFragmentComponent(result, slots);
+		return await renderFragmentComponent(result, slots, context);
 	}
 
 	// Ensure directives (`class:list`) are processed
@@ -460,10 +464,10 @@ export async function renderComponent(
 	}
 
 	if (isAstroComponentFactory(Component)) {
-		return renderAstroComponent(result, displayName, Component, props, slots);
+		return renderAstroComponent(result, displayName, Component, props, slots, context);
 	}
 
-	return await renderFrameworkComponent(result, displayName, Component, props, slots);
+	return await renderFrameworkComponent(result, displayName, Component, props, slots, context);
 }
 
 function normalizeProps(props: Record<string, any>): Record<string, any> {
@@ -485,7 +489,8 @@ export async function renderComponentToString(
 	props: Record<string | number, any>,
 	slots: any = {},
 	isPage = false,
-	route?: RouteData
+	route: RouteData | undefined,
+	context: Record<string | symbol | number, unknown>
 ): Promise<string> {
 	let str = '';
 	let renderedFirstPageChunk = false;
@@ -518,7 +523,7 @@ export async function renderComponentToString(
 			},
 		};
 
-		const renderInstance = await renderComponent(result, displayName, Component, props, slots);
+		const renderInstance = await renderComponent(result, displayName, Component, props, slots, context);
 		await renderInstance.render(destination);
 	} catch (e) {
 		// We don't have a lot of information downstream, and upstream we can't catch the error properly

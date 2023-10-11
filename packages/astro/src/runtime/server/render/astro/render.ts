@@ -12,14 +12,16 @@ export async function renderToString(
 	props: any,
 	children: any,
 	isPage = false,
-	route?: RouteData
+	route: RouteData | undefined,
+	context: any
 ): Promise<string | Response> {
 	const templateResult = await callComponentAsTemplateResultOrResponse(
 		result,
 		componentFactory,
 		props,
 		children,
-		route
+		route,
+		context
 	);
 
 	// If the Astro component returns a Response on init, return that response
@@ -58,14 +60,16 @@ export async function renderToReadableStream(
 	props: any,
 	children: any,
 	isPage = false,
-	route?: RouteData
+	route: RouteData | undefined,
+	context: any
 ): Promise<ReadableStream | Response> {
 	const templateResult = await callComponentAsTemplateResultOrResponse(
 		result,
 		componentFactory,
 		props,
 		children,
-		route
+		route,
+		context
 	);
 
 	// If the Astro component returns a Response on init, return that response
@@ -130,9 +134,10 @@ async function callComponentAsTemplateResultOrResponse(
 	componentFactory: AstroComponentFactory,
 	props: any,
 	children: any,
-	route?: RouteData
+	route: RouteData | undefined,
+	context: any
 ) {
-	const factoryResult = await componentFactory(result, props, children);
+	const factoryResult = await componentFactory(result, props, children, context);
 
 	if (factoryResult instanceof Response) {
 		return factoryResult;

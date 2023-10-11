@@ -12,7 +12,8 @@ export async function renderPage(
 	props: any,
 	children: any,
 	streaming: boolean,
-	route?: RouteData
+	route: RouteData | undefined,
+	context: any
 ): Promise<Response> {
 	if (!isAstroComponentFactory(componentFactory)) {
 		result._metadata.headInTree =
@@ -27,7 +28,8 @@ export async function renderPage(
 			pageProps,
 			null,
 			true,
-			route
+			route,
+			{}
 		);
 
 		const bytes = encoder.encode(str);
@@ -47,9 +49,9 @@ export async function renderPage(
 
 	let body: BodyInit | Response;
 	if (streaming) {
-		body = await renderToReadableStream(result, componentFactory, props, children, true, route);
+		body = await renderToReadableStream(result, componentFactory, props, children, true, route, context);
 	} else {
-		body = await renderToString(result, componentFactory, props, children, true, route);
+		body = await renderToString(result, componentFactory, props, children, true, route, context);
 	}
 
 	// If the Astro component returns a Response on init, return that response

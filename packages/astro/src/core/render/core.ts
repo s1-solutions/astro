@@ -71,7 +71,8 @@ export async function renderPage({ mod, renderContext, env, cookies }: RenderPag
 		renderContext.props,
 		null,
 		env.streaming,
-		renderContext.route
+		renderContext.route,
+		{}
 	);
 
 	// If there is an Astro.cookies instance, attach it to the response so that

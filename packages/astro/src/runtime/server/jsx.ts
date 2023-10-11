@@ -82,6 +82,7 @@ Did you forget to import the component or is it possible there is a typo?`);
 			case (vnode.type as any).isAstroComponentFactory: {
 				let props: Record<string, any> = {};
 				let slots: Record<string, any> = {};
+				let context: Record<string, any> = {};
 				for (const [key, value] of Object.entries(vnode.props ?? {})) {
 					if (key === 'children' || (value && typeof value === 'object' && value['$$slot'])) {
 						slots[key === 'children' ? 'default' : key] = () => renderJSX(result, value);
@@ -89,7 +90,7 @@ Did you forget to import the component or is it possible there is a typo?`);
 						props[key] = value;
 					}
 				}
-				const str = await renderToString(result, vnode.type as any, props, slots);
+				const str = await renderToString(result, vnode.type as any, props, slots, false, undefined, context);
 				if (str instanceof Response) {
 					throw str;
 				}
@@ -140,6 +141,7 @@ Did you forget to import the component or is it possible there is a typo?`);
 			const _slots: Record<string, any> = {
 				default: [],
 			};
+			const context = {};
 			function extractSlots(child: any): any {
 				if (Array.isArray(child)) {
 					return child.map((c) => extractSlots(c));
@@ -182,7 +184,10 @@ Did you forget to import the component or is it possible there is a typo?`);
 					vnode.props['client:display-name'] ?? '',
 					null,
 					props,
-					slots
+					slots,
+					false,
+					undefined,
+					context
 				);
 			} else {
 				output = await renderComponentToString(
@@ -190,7 +195,10 @@ Did you forget to import the component or is it possible there is a typo?`);
 					typeof vnode.type === 'function' ? vnode.type.name : vnode.type,
 					vnode.type,
 					props,
-					slots
+					slots,
+					false,
+					undefined,
+					context
 				);
 			}
 			return markHTMLString(output);

@@ -279,6 +279,7 @@ export interface AstroGlobal<
 		 */
 		render(slotName: string, args?: any[]): Promise<string>;
 	};
+	context: Record<number | string | symbol, unknown>;
 }
 
 /** Union type of supported markdown file extensions */
@@ -2181,7 +2182,8 @@ export interface SSRResult {
 	createAstro(
 		Astro: AstroGlobalPartial,
 		props: Record<string, any>,
-		slots: Record<string, any> | null
+		slots: Record<string, any> | null,
+		context?: Record<string, any>
 	): AstroGlobal;
 	resolve: (s: string) => Promise<string>;
 	response: ResponseInit;

@@ -9,7 +9,8 @@ import { chunkToString, type RenderDestination, type RenderInstance } from './co
 type RenderTemplateResult = ReturnType<typeof renderTemplate>;
 export type ComponentSlots = Record<string, ComponentSlotValue>;
 export type ComponentSlotValue = (
-	result: SSRResult
+	result: SSRResult,
+	context: Record<string | symbol | number, unknown>
 ) => RenderTemplateResult | Promise<RenderTemplateResult>;
 
 const slotString = Symbol.for('astro:slot-string');
@@ -31,14 +32,12 @@ export function isSlotString(str: string): str is any {
 export function renderSlot(
 	result: SSRResult,
 	slotted: ComponentSlotValue | RenderTemplateResult,
-	fallback?: ComponentSlotValue | RenderTemplateResult
+	context: Record<string | symbol | number, unknown>
 ): RenderInstance {
-	if (!slotted && fallback) {
-		return renderSlot(result, fallback);
-	}
 	return {
 		async render(destination) {
-			await renderChild(destination, typeof slotted === 'function' ? slotted(result) : slotted);
+			const child = typeof slotted === 'function' ? slotted(result, context) : slotted
+			await renderChild(destination, child);
 		},
 	};
 }
@@ -46,7 +45,7 @@ export function renderSlot(
 export async function renderSlotToString(
 	result: SSRResult,
 	slotted: ComponentSlotValue | RenderTemplateResult,
-	fallback?: ComponentSlotValue | RenderTemplateResult
+	context: Record<string  | symbol | number, unknown>
 ): Promise<string> {
 	let content = '';
 	let instructions: null | RenderInstruction[] = null;
@@ -63,7 +62,7 @@ export async function renderSlotToString(
 			}
 		},
 	};
-	const renderInstance = renderSlot(result, slotted, fallback);
+	const renderInstance = renderSlot(result, slotted, context);
 	await renderInstance.render(temporaryDestination);
 	return markHTMLString(new SlotString(content, instructions));
 }
@@ -75,14 +74,15 @@ interface RenderSlotsResult {
 
 export async function renderSlots(
 	result: SSRResult,
-	slots: ComponentSlots = {}
+	slots: ComponentSlots = {},
+	context: Record<string | symbol | number, unknown>
 ): Promise<RenderSlotsResult> {
 	let slotInstructions: RenderSlotsResult['slotInstructions'] = null;
 	let children: RenderSlotsResult['children'] = {};
 	if (slots) {
 		await Promise.all(
 			Object.entries(slots).map(([key, value]) =>
-				renderSlotToString(result, value).then((output: any) => {
+				renderSlotToString(result, value, context).then((output: any) => {
 					if (output.instructions) {
 						if (slotInstructions === null) {
 							slotInstructions = [];

@@ -8,7 +8,7 @@ import type {
 } from '../../@types/astro.js';
 import { renderSlotToString, type ComponentSlots } from '../../runtime/server/index.js';
 import { renderJSX } from '../../runtime/server/jsx.js';
-import { chunkToString } from '../../runtime/server/render/index.js';
+import { chunkToString, type AstroComponentFactory } from '../../runtime/server/render/index.js';
 import { AstroCookies } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import type { Logger } from '../logger/core.js';
@@ -96,14 +96,14 @@ class Slots {
 			);
 		} else if (args.length > 0) {
 			const slotValue = this.#slots[name];
-			const component = typeof slotValue === 'function' ? await slotValue(result) : await slotValue;
+			const component = typeof slotValue === 'function' ? await slotValue(result, { noContextAvailableHere: '' }) : await slotValue;
 
 			// Astro
 			const expression = getFunctionExpression(component);
 			if (expression) {
 				const slot = async () =>
 					typeof expression === 'function' ? expression(...args) : expression;
-				return await renderSlotToString(result, slot).then((res) => {
+				return await renderSlotToString(result, slot, { noContextAvailableHere: '' }).then((res) => {
 					return res != null ? String(res) : res;
 				});
 			}
@@ -115,7 +115,7 @@ class Slots {
 			}
 		}
 
-		const content = await renderSlotToString(result, this.#slots[name]);
+		const content = await renderSlotToString(result, this.#slots[name], { noContextAvailableHere: '' });
 		const outHTML = chunkToString(result, content);
 
 		return outHTML;
@@ -161,13 +161,15 @@ export function createResult(args: CreateResultArgs): SSRResult {
 		createAstro(
 			astroGlobal: AstroGlobalPartial,
 			props: Record<string, any>,
-			slots: Record<string, any> | null
+			slots: Record<string, any> | null,
+			_context: Record<string, unknown> | undefined
 		) {
 			const astroSlots = new Slots(result, slots, args.logger);
 
-			const Astro: AstroGlobal = {
-				// @ts-expect-error
-				__proto__: astroGlobal,
+			const context = _context ? _context: (console.log("creating context"), {})
+
+			const Astro = {
+				...astroGlobal,
 				get clientAddress() {
 					if (!(clientAddressSymbol in request)) {
 						if (args.adapterName) {
@@ -212,9 +214,10 @@ export function createResult(args: CreateResultArgs): SSRResult {
 				},
 				response: response as AstroGlobal['response'],
 				slots: astroSlots as unknown as AstroGlobal['slots'],
-			};
+				context: { ...context }
+			} satisfies Omit<AstroGlobal, 'self'>;
 
-			return Astro;
+			return Astro as typeof Astro & { self: AstroComponentFactory };
 		},
 		resolve,
 		response,

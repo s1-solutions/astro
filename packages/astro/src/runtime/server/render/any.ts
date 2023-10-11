@@ -5,7 +5,7 @@ import { SlotString } from './slot.js';
 import { renderToBufferDestination } from './util.js';
 
 export async function renderChild(destination: RenderDestination, child: any) {
-	child = await child;
+	if (child instanceof Promise) child = await child;
 	if (child instanceof SlotString) {
 		destination.write(child);
 	} else if (isHTMLString(child)) {
@@ -31,6 +31,7 @@ export async function renderChild(destination: RenderDestination, child: any) {
 	} else if (!child && child !== 0) {
 		// do nothing, safe to ignore falsey values.
 	} else if (isRenderInstance(child)) {
+		// console.log(" rendering slotted child ")
 		await child.render(destination);
 	} else if (isRenderTemplateResult(child)) {
 		await child.render(destination);

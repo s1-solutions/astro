@@ -15,30 +15,18 @@ const astroComponentInstanceSym = Symbol.for('astro.componentInstance');
 export class AstroComponentInstance {
 	[astroComponentInstanceSym] = true;
 
-	private readonly result: SSRResult;
-	private readonly props: ComponentProps;
-	private readonly slotValues: ComponentSlots;
-	private readonly factory: AstroComponentFactory;
 	private returnValue: ReturnType<AstroComponentFactory> | undefined;
 	constructor(
-		result: SSRResult,
-		props: ComponentProps,
-		slots: ComponentSlots,
-		factory: AstroComponentFactory
-	) {
-		this.result = result;
-		this.props = props;
-		this.factory = factory;
-		this.slotValues = {};
-		for (const name in slots) {
-			const value = slots[name](result);
-			this.slotValues[name] = () => value;
-		}
-	}
+		private readonly result: SSRResult,
+		private readonly props: ComponentProps,
+		private readonly slotValues: ComponentSlots,
+		private readonly factory: AstroComponentFactory,
+		private readonly context: Record<string | symbol | number, unknown>
+	) {}
 
 	async init(result: SSRResult) {
 		if (this.returnValue !== undefined) return this.returnValue;
-		this.returnValue = this.factory(result, this.props, this.slotValues);
+		this.returnValue = this.factory(result, this.props, this.slotValues, this.context);
 		return this.returnValue;
 	}
 
@@ -78,10 +66,11 @@ export function createAstroComponentInstance(
 	displayName: string,
 	factory: AstroComponentFactory,
 	props: ComponentProps,
-	slots: any = {}
+	slots: any,
+	context: any
 ) {
 	validateComponentProps(props, displayName);
-	const instance = new AstroComponentInstance(result, props, slots, factory);
+	const instance = new AstroComponentInstance(result, props, slots, factory, context);
 	if (isAPropagatingComponent(result, factory)) {
 		result._metadata.propagators.add(instance);
 	}

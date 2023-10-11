@@ -3,7 +3,7 @@ import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import type { AstroComponentFactory } from './render/index.js';
 
 function validateArgs(args: unknown[]): args is Parameters<AstroComponentFactory> {
-	if (args.length !== 3) return false;
+	if (args.length !== 4) return false;
 	if (!args[0] || typeof args[0] !== 'object') return false;
 	return true;
 }
