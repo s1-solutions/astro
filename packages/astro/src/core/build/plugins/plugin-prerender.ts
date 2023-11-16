@@ -22,10 +22,8 @@ function vitePluginPrerender(opts: StaticBuildOptions, internals: BuildInternals
 						// prerendered pages should be split into their own chunk
 						// Important: this can't be in the `pages/` directory!
 						if (getPrerenderMetadata(meta.getModuleInfo(id)!)) {
-							pageInfo.route.prerender = true;
 							return 'prerender';
 						}
-						pageInfo.route.prerender = false;
 						// dynamic pages should all go in their own chunk in the pages/* directory
 						return `pages/${path.basename(pageInfo.component)}`;
 					}
